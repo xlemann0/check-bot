@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Davomat Skaneri</title>
+    <!-- QR skaner kutubxonasi -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; padding: 15px; }
+        h3 { color: #333; }
+        #reader { width: 100%; max-width: 350px; margin: auto; border-radius: 12px; overflow: hidden; }
+        #result { margin-top: 20px; font-weight: bold; color: green; }
+    </style>
+</head>
+<body>
+    <h3>QR-kodni skaner qiling</h3>
+    <div id="reader"></div>
+    <div id="result"></div>
+
+    <!-- Telegram Web App JS SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Oynani to'liq ochish
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // QR-kod o'qilganda ishlaydigan funksiya
+            document.getElementById('result').innerText = "Muvaffaqiyatli: " + decodedText;
+            
+            // Agar QR-kod botning start havolasi bo'lsa, Telegram orqali o'tkazish
+            if (decodedText.includes("t.me/")) {
+                window.location.href = decodedText;
+            } else {
+                // Ma'lumotni botga yuborish va oynani yopish
+                tg.sendData(decodedText);
+                tg.close();
+            }
+        }
+
+        let html5QrCodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 }, false);
+        html5QrCodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
