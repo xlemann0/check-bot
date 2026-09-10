@@ -60,11 +60,11 @@ def get_admin_keyboard():
     return types.ReplyKeyboardMarkup(
         keyboard=[
             [types.KeyboardButton(text="1️⃣ Kunlik QR-kodni olish")],
-            [types.KeyboardButton(text="7️⃣ Statistika")],
-            [types.KeyboardButton(text="8️⃣ Skaner qilganlar"), types.KeyboardButton(text="9️⃣ Skaner qilmaganlar")],
             [types.KeyboardButton(text="2️⃣ Talaba qo'shish"), types.KeyboardButton(text="3️⃣ Talabani o'chirish")],
             [types.KeyboardButton(text="4️⃣ Admin qo'shish"), types.KeyboardButton(text="5️⃣ Adminni o'chirish")],
             [types.KeyboardButton(text="6️⃣ Xabar yollash")],
+            [types.KeyboardButton(text="7️⃣ Statistika")],
+            [types.KeyboardButton(text="8️⃣ Skaner qilganlar"), types.KeyboardButton(text="9️⃣ Skaner qilmaganlar")],
         ],
         resize_keyboard=True,
     )
@@ -271,6 +271,27 @@ async def get_student_phone(message: types.Message, state: FSMContext):
     await message.answer("✅ Talaba muvaffaqiyatli ro'yxatga qo'shildi!", reply_markup=get_admin_keyboard())
     await state.clear()
 
+    # Talabaga ro'yxatdan o'tganligi haqida xabar va Web App tugmani yuborish
+    try:
+        student_web_app_keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InlineKeyboardButton(
+                    text="📷 Kamerani ochish va Skaner qilish",
+                    web_app=WebAppInfo(url="https://t.me/TTJ_DavomatBot/dilshod")
+                )
+            ]]
+        )
+        await bot.send_message(
+            s_id,
+            f"🎉 **Tabriklaymiz, {data['student_name']}!**\n\n"
+            f"Siz yotoqxona davomat tizimiga muvaffaqiyatli ro'yxatdan o'tdingiz. "
+            f"Endi bot orqali davomat qilishingiz mumkin.",
+            reply_markup=student_web_app_keyboard,
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"Talabaga xabar yuborishda xatolik: {e}")
+
 @dp.message(F.text == "3️⃣ Talabani o'chirish")
 async def remove_student_start(message: types.Message, state: FSMContext):
     if message.from_user.id not in admins:
@@ -287,6 +308,10 @@ async def save_remove_student(message: types.Message, state: FSMContext):
             if s_id in attendance_today:
                 attendance_today.pop(s_id)
             await message.answer("✅ Talaba ro'yxatdan o'chirildi.", reply_markup=get_admin_keyboard())
+            try:
+                await bot.send_message(s_id, "❌ Siz adminlar tomonidan davomat ro'yxatidan o'chirildingiz.")
+            except Exception:
+                pass
         else:
             await message.answer("❌ Bu ID bo'yicha talaba topilmadi. Qaytadan ID yuboring:")
             return
