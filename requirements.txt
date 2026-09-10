@@ -1,4 +1,4 @@
 aiogram==3.14.0
 aiohttp==3.10.5
-pydantic==2.8.2
+pydantic
 qrcode[pil]==7.4.2
