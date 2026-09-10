@@ -8,12 +8,13 @@ from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 import qrcode
 
 TOKEN = "8946349098:AAHduOCoODfeBI3adUa8gJ4MRqVfO3cujxQ"
 SUPER_ADMIN_ID = 5874144878
 
-# Bot username'ingizni shu yerga yozing (masalan: t.me/SizningBotingiz_bot)
+# Bot username'ingiz
 BOT_USERNAME = "TTJ_DavomatBot"
 
 CURRENT_QR_CODE = ""
@@ -120,8 +121,8 @@ async def cmd_start(message: types.Message, command: CommandObject, state: FSMCo
         return
 
     if user_id not in registered_students:
-        keyboard = types.InlineKeyboardMarkup(
-            inline_keyboard=[[types.InlineKeyboardButton(text="💬 Adminga murojaat qilish", url="https://t.me/xlemann")]]
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[[InlineKeyboardButton(text="💬 Adminga murojaat qilish", url="https://t.me/xlemann")]]
         )
         await message.answer(
             "❌ Siz adminlar tomonidan hali ro'yxatdan o'tkazilmagansiz!\n"
@@ -130,25 +131,18 @@ async def cmd_start(message: types.Message, command: CommandObject, state: FSMCo
         )
         return
 
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[[types.KeyboardButton(text="📷 QR-kodni skaner qilish")]],
-        resize_keyboard=True,
+    # Talabalar uchun Web App (Kamerani ochuvchi) tugma
+    web_app_keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[
+            InlineKeyboardButton(
+                text="📷 Kamerani ochish va Skaner qilish",
+                web_app=WebAppInfo(url="https://t.me/TTJ_DavomatBot/dilshod")
+            )
+        ]]
     )
     await message.answer(
-        "Xush kelibsiz! Davomat qilish uchun quyidagi tugmani bosing:",
-        reply_markup=keyboard,
-    )
-
-@dp.message(F.text == "📷 QR-kodni skaner qilish")
-async def student_qr_info(message: types.Message):
-    user_id = message.from_user.id
-    if user_id in admins or user_id not in registered_students:
-        return
-
-    await message.answer(
-        "📱 **Davomat qilish tartibi:**\n\n"
-        "Admin huzuriga boring va u ko'rsatgan **bugungi kunlik QR-kodni** o'z telefoningiz kamerasi bilan skaner qiling. Shunda davomatingiz avtomatik belgilanadi!",
-        parse_mode="Markdown"
+        "Xush kelibsiz! Davomat qilish uchun quyidagi tugmani bosing va kamerani oching:",
+        reply_markup=web_app_keyboard,
     )
 
 @dp.message(F.text == "1️⃣ Kunlik QR-kodni olish")
