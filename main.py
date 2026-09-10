@@ -271,7 +271,7 @@ async def get_student_phone(message: types.Message, state: FSMContext):
     await message.answer("✅ Talaba muvaffaqiyatli ro'yxatga qo'shildi!", reply_markup=get_admin_keyboard())
     await state.clear()
 
-    # Talabaga ro'yxatdan o'tganligi haqida xabar va Web App tugmani yuborish
+    # Talabaga xabar yuborish va xavfsizlikni ta'minlash
     try:
         student_web_app_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[[
@@ -282,15 +282,20 @@ async def get_student_phone(message: types.Message, state: FSMContext):
             ]]
         )
         await bot.send_message(
-            s_id,
-            f"🎉 **Tabriklaymiz, {data['student_name']}!**\n\n"
-            f"Siz yotoqxona davomat tizimiga muvaffaqiyatli ro'yxatdan o'tdingiz. "
-            f"Endi bot orqali davomat qilishingiz mumkin.",
+            chat_id=s_id,
+            text=f"🎉 **Tabriklaymiz, {data['student_name']}!**\n\n"
+                 f"Siz yotoqxona davomat tizimiga muvaffaqiyatli ro'yxatdan o'tdingiz. "
+                 f"Endi bot orqali davomat qilishingiz mumkin.",
             reply_markup=student_web_app_keyboard,
             parse_mode="Markdown"
         )
     except Exception as e:
-        print(f"Talabaga xabar yuborishda xatolik: {e}")
+        await message.answer(
+            f"⚠️ *Diqqat:* Talabaga xabar yuborib bo'lmadi.\n"
+            f"Sababi: Talaba hali botni ochmagan (`/start` bosmagan).\n"
+            f"U avval botga kirib `/start` bosishi kerak.",
+            parse_mode="Markdown"
+        )
 
 @dp.message(F.text == "3️⃣ Talabani o'chirish")
 async def remove_student_start(message: types.Message, state: FSMContext):
